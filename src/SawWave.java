@@ -1,45 +1,47 @@
-import java.util.function.DoubleFunction;
-
 public class SawWave extends Voice {
 
     public SawWave(
-        int offsetValue,
+        int offsetOctaves,
         double sampleRate,
         double volume,
+        double peakVolume,
         double attack,
         double decay,
-        double sustain,
-        double release
+        double sustain
     ) {
-        super(offsetValue, sampleRate, volume, attack, decay, sustain, release);
+        super(offsetOctaves, sampleRate, volume, peakVolume, attack, decay, sustain);
     }
 
     @Override
     protected byte[] waveform(double frequency, double length) {
-        byte[] wave = new byte[(int) (length * this.getSampleRate())];
-        double attackSlope = this.getSustain() / this.getAttack();
-        double decaySlope;
-        try{
-            decaySlope = -this.getSustain()/this.getDecay();
-        }
-        catch (ArithmeticException e){
-            decaySlope = 0;
-        }
+        double real_frequency = frequency * Math.pow(2, getOffset());
+        byte[] wave = new byte[(int) (length * getSampleRate())];
 
-        for (int i = 0; i < wave.length; i++) {
-            double time = i/this.getSampleRate();
-            double amplitude;
-            if (time  < this.getAttack()) {
-                amplitude = attackSlope * time;
+        int attackSamples = (int) (getAttack() * getSampleRate());
+        int decaySamples = (int) (getDecay() * getSampleRate());
+
+        double decaySlope = (getPeakAmplitude() - getSustain())/decaySamples;
+        double attackSlope = getPeakAmplitude()/(getAttack() * getSampleRate());
+
+        wave[0] = 0;
+        wave[1] = 1;
+
+
+        for (int i = 2; i < wave.length; i++){
+            double time = i/getSampleRate();
+            double volume;
+            if (i < attackSamples){
+                volume = i * attackSlope;
+            }
+            else if (i < attackSamples + decaySamples){
+                volume = getPeakAmplitude() - ((i - attackSamples)*decaySlope);
             }
             else {
-                amplitude = this.getSustain() - (decaySlope * time);
+                volume = getSustain();
             }
-            if (amplitude <= 0.01){
-                amplitude = 0.01;
-            }
-            wave[i] = (byte) (amplitude * 2.0 *
-                (i / (2.0 * Math.PI) - Math.floor(0.5 + i / (2.0 * Math.PI))));
+
+            double value =  2.0 * ((time * real_frequency) - Math.floor((i/getSampleRate()) * real_frequency + 0.5));
+            wave[i] = (byte) (volume * value * 127);
         }
         return wave;
     }

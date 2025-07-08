@@ -2,32 +2,34 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import java.util.ArrayList;
 
-public abstract class SynthBase {
+public class SynthBase {
+    private Voice[] synthVoices;
+    public SynthBase(Voice[] synthVoices) {
+        this.synthVoices = synthVoices;
+    }
 
-    public SynthBase() {}
-
-    public static void playSound(double frequency, double length, double volume)
+    public void createFullSample(double frequency, double length)
         throws LineUnavailableException {
-        int sampleRate = 44100;
-        byte[] buffer = new byte[(int) (length * sampleRate)];
+        int total_length = (int) (synthVoices[0].getSampleRate() * length);
+        byte[] finalSample = new byte[total_length];
+        ArrayList<byte[]> waveforms = new ArrayList<>();
+        for (Voice v : synthVoices)
+            waveforms.add(v.waveform(frequency, length));
 
-        for (int i = 0; i < buffer.length; i++) {
-            double angle =
-                ((Math.PI * 2.0) * (double) i * frequency) / sampleRate;
-            buffer[i] = (byte) ((int) (Math.sin(angle) * (double) 127.0F));
+        for (int i = 0; i < total_length; i++){
+            int ith_sample = 0;
+            for (byte[] wave : waveforms){
+                ith_sample += wave[i];
+            }
+            finalSample[i] = (byte) ith_sample;
         }
-        for (int i = 0; i < buffer.length - 1; i++) {
-            double angle =
-                ((Math.PI * 2.0) * (double) (i * frequency)) / sampleRate;
-            buffer[i + 1] = (byte) ((int) (Math.sin(angle) * (double) 127.0F));
-        }
-
-        AudioFormat format = new AudioFormat(sampleRate, 8, 1, true, false);
+        AudioFormat format = new AudioFormat((float)synthVoices[0].getSampleRate(), 8, 1, true, false);
         SourceDataLine line = AudioSystem.getSourceDataLine(format);
-        line.open(format);
+        line.open(format, finalSample.length);
         line.start();
-        line.write(buffer, 0, buffer.length);
+        line.write(finalSample, 0,  finalSample.length);
         line.drain();
         line.stop();
         line.close();

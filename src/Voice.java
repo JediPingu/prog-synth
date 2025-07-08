@@ -1,12 +1,23 @@
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
+
 public abstract class Voice {
 
     private int offset;
     private double sampleRate;
     private double amplitude;
+
+    public double getPeakAmplitude() {
+        return peakAmplitude;
+    }
+
+    private double peakAmplitude;
     private double attack;
     private double decay;
     private double sustain;
-    private double release;
+
 
     public int getOffset() {
         return offset;
@@ -24,41 +35,22 @@ public abstract class Voice {
         return amplitude;
     }
 
-    public void setAmplitude(double amplitude) {
-        this.amplitude = amplitude;
-    }
-
     public double getAttack() {
         return attack;
     }
 
-    public void setAttack(double attack) {
-        this.attack = attack;
-    }
 
     public double getDecay() {
         return decay;
     }
 
-    public void setDecay(double decay) {
-        this.decay = decay;
-    }
 
     public double getSustain() {
         return sustain;
     }
 
-    public void setSustain(double sustain) {
-        this.sustain = sustain;
-    }
 
-    public double getRelease() {
-        return release;
-    }
 
-    public void setRelease(double release) {
-        this.release = release;
-    }
 
     protected abstract byte[] waveform(double frequency, double length);
 
@@ -66,17 +58,30 @@ public abstract class Voice {
         int offsetValue,
         double sampleRate,
         double volume,
+        double peakVolume,
         double attack,
         double decay,
-        double sustain,
-        double release
+        double sustain
     ) {
         this.offset = offsetValue;
+        this.peakAmplitude = peakVolume;
         this.sampleRate = sampleRate;
         this.amplitude = volume;
         this.attack = attack;
         this.decay = decay;
         this.sustain = sustain;
-        this.release = release;
     }
+
+    public void playWaveform(double frequency, double length) throws LineUnavailableException {
+        byte[] wave = waveform(frequency, length);
+        AudioFormat format = new AudioFormat((float) getSampleRate(), 8, 1, true, false);
+        SourceDataLine line = AudioSystem.getSourceDataLine(format);
+        line.open(format, wave.length);
+        line.start();
+        line.write(wave, 0,  wave.length);
+        line.drain();
+        line.stop();
+        line.close();
+    }
+
 }
