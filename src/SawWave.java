@@ -3,13 +3,12 @@ public class SawWave extends Voice {
     public SawWave(
         int offsetOctaves,
         double sampleRate,
-        double volume,
         double peakVolume,
         double attack,
         double decay,
         double sustain
     ) {
-        super(offsetOctaves, sampleRate, volume, peakVolume, attack, decay, sustain);
+        super(offsetOctaves, sampleRate, peakVolume, attack, decay, sustain);
     }
 
     @Override

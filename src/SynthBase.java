@@ -18,7 +18,7 @@ public class SynthBase {
         line.stop();
         line.close();
     }
-    public void createFullSample(double frequency, double length)
+    public void play(double frequency, double length)
         throws LineUnavailableException {
         ArrayList<byte[]> waveforms = new ArrayList<>();
         for (Voice v : synthVoices){

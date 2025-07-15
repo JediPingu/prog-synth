@@ -50,14 +50,12 @@ public abstract class Voice {
     }
 
 
-
-
     protected abstract byte[] waveform(double frequency, double length);
 
     public Voice(
         int offsetValue,
         double sampleRate,
-        double volume,
+        
         double peakVolume,
         double attack,
         double decay,
@@ -66,7 +64,7 @@ public abstract class Voice {
         this.offset = offsetValue;
         this.peakAmplitude = peakVolume;
         this.sampleRate = sampleRate;
-        this.amplitude = volume;
+
         this.attack = attack;
         this.decay = decay;
         this.sustain = sustain;

@@ -3,13 +3,12 @@ public class SineWave extends Voice{
     public SineWave(
             int offsetOctaves,
             double sampleRate,
-            double volume,
             double peakVolume,
             double attack,
             double decay,
             double sustain
     ) {
-        super(offsetOctaves, sampleRate, volume, peakVolume, attack, decay, sustain);
+        super(offsetOctaves, sampleRate, peakVolume, attack, decay, sustain);
     }
 
     @Override
@@ -20,8 +19,8 @@ public class SineWave extends Voice{
         int attackSamples = (int) (getAttack() * getSampleRate());
         int decaySamples = (int) (getDecay() * getSampleRate());
 
-        double decaySlope = (getPeakAmplitude() - getSustain())/decaySamples;
         double attackSlope = getPeakAmplitude()/(getAttack() * getSampleRate());
+        double decaySlope = (getPeakAmplitude() - getSustain())/decaySamples;
 
         wave[0] = 0;
         wave[1] = 1;
