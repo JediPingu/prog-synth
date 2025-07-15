@@ -1,17 +1,12 @@
-public class SineWave extends Voice{
-
-    public SineWave(
-            int offsetOctaves,
-            double sampleRate,
-            double peakVolume
-    ) {
+public class NoiseWave extends Voice{
+    public NoiseWave(int offsetOctaves, double sampleRate, double peakVolume) {
         super(offsetOctaves, sampleRate, peakVolume);
     }
 
     @Override
     protected byte[] waveform(double frequency, double length) {
-        double real_frequency = frequency * Math.pow(2, getOffset());
-        byte[] wave = new byte[(int) (length * getSampleRate())];
+
+        int totalLength = (int) (length * getSampleRate());
 
         int attackSamples = (int) (getAttack() * getSampleRate());
         int decaySamples = (int) (getDecay() * getSampleRate());
@@ -19,11 +14,10 @@ public class SineWave extends Voice{
         double attackSlope = getPeakAmplitude()/(getAttack() * getSampleRate());
         double decaySlope = (getPeakAmplitude() - getSustain())/decaySamples;
 
-        wave[0] = 0;
-        wave[1] = 1;
-
-        for (int i = 2; i < wave.length; i++){
-            double time = i/getSampleRate();
+        byte[] sample = new byte[totalLength];
+        sample[0] = 0;
+        sample[1] = 1;
+        for (int i = 2; i < sample.length; i++) {
             double volume;
             if (i < attackSamples){
                 volume = i * attackSlope;
@@ -35,10 +29,15 @@ public class SineWave extends Voice{
                 volume = getSustain();
             }
 
-            double value = Math.sin(time * real_frequency * Math.PI);
-            wave[i] = (byte) (volume * value * 127);
+            double randomNum = Math.random();
+            if (randomNum > 0.5) {
+                sample[i] = (byte) (volume * randomNum * 127);
+            }
+            else{
+                sample[i] = (byte) (volume * randomNum * -128);
+            }
         }
-        return wave;
+        return sample;
     }
 }
 
