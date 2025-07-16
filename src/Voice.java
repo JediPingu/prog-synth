@@ -7,11 +7,14 @@ public abstract class Voice {
 
     private int offset;
     private double sampleRate;
-
     private double peakAmplitude;
+
     private double attack;
     private double decay;
     private double sustain;
+
+
+    private double release;
 
     public Voice(
             int offsetValue,
@@ -52,9 +55,12 @@ public abstract class Voice {
         return decay;
     }
 
-
     public double getSustain() {
         return sustain;
+    }
+
+    public double getRelease() {
+        return release;
     }
 
     public void setPeakAmplitude(double peakAmplitude) {
@@ -80,6 +86,9 @@ public abstract class Voice {
         this.sustain = sustain;
     }
 
+    public void setRelease(double release) {
+        this.release = release;
+    }
 
     public void playWaveform(double frequency, double length) throws LineUnavailableException {
         byte[] wave = waveform(frequency, length);

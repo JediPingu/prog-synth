@@ -39,4 +39,23 @@ public class SynthBase {
             }
         }
     }
+
+    public static class MidiNotes{
+        public static ArrayList<Double> notes = new ArrayList<Double>();
+        public MidiNotes(){
+            generateNotes();
+        }
+        void generateNotes(){
+            double[] normalNoteFrequencies = {16.35, 17.32, 18.35, 19.45, 20.60, 21.83, 23.12, 24.50, 25.96, 27.50, 29.14, 30.87};
+            for (int i = 0; i < 7; i++) {
+                for (double n : normalNoteFrequencies){
+                    notes.add((double) (n * Math.pow(2, i)));
+                }
+            }
+        }
+        double midiNoteToFrequency(int midiNote){
+            return notes.get(midiNote);
+        }
+    }
+
 }
